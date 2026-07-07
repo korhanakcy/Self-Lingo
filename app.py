@@ -102,13 +102,16 @@ h1,h2,h3,p,label,.stMarkdown { color: #1d2b6b !important; }
 .row { display:flex; gap:7px; }
 .tile { width: clamp(40px, 11.5vw, 58px); aspect-ratio: 1;
   display:flex; align-items:center; justify-content:center;
-  font-size: clamp(1.3rem, 5.5vw, 1.8rem); font-weight: 900; color:#fff;
-  background:#1d2b6b; border-radius:12px;
-  box-shadow: 0 3px 0 rgba(29,43,107,.35); }
+  font-size: clamp(1.35rem, 5.8vw, 1.85rem); font-weight: 900;
+  color:#ffffff !important; -webkit-text-fill-color:#ffffff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.35);
+  background:#243472; border-radius:12px;
+  box-shadow: 0 3px 0 rgba(20,30,80,.45); }
 .tile.dogru { background:#26a653; box-shadow: 0 3px 0 #1a7a3c; }
 .tile.var   { background:#f4a61d; box-shadow: 0 3px 0 #c07f0a; }
-.tile.yok   { background:#1d2b6b; }                    /* vurgu yok */
-.tile.bos   { background:#e9e2ea; color:#b9aec4; box-shadow: 0 3px 0 #d8cede; }
+.tile.yok   { background:#243472; }                    /* vurgu yok */
+.tile.bos   { background:#e9e2ea; color:#b9aec4 !important;
+  -webkit-text-fill-color:#b9aec4; text-shadow:none; box-shadow: 0 3px 0 #d8cede; }
 .tile.ipucu { background:#26a653; box-shadow: 0 3px 0 #1a7a3c; }
 
 /* mini klavye */
@@ -127,8 +130,9 @@ div[data-testid="stForm"] { background:#fff; border:1.5px solid #f0d9dc;
   letter-spacing:.15em; text-align:center; color:#1d2b6b !important;
   background:#fff2f2 !important; border-radius:10px !important; }
 .stButton button, .stFormSubmitButton button {
-  background:#1d2b6b; color:#fff; font-weight:800; border:none;
+  background:#1d2b6b; color:#ffffff !important; font-weight:800; border:none;
   border-radius:12px; box-shadow: 0 3px 0 #121d4d; }
+.stButton button p, .stFormSubmitButton button p { color:#ffffff !important; }
 .stButton button:hover, .stFormSubmitButton button:hover { background:#26357f; color:#fff; }
 button[kind="primary"] { background:#26a653 !important; box-shadow: 0 3px 0 #1a7a3c !important; }
 </style>
@@ -173,7 +177,14 @@ for guess, states in st.session_state.guesses:
     rows.append('<div class="row">' + "".join(tile(g, s) for g, s in zip(guess, states)) + "</div>")
 
 if not st.session_state.over and len(st.session_state.guesses) < MAX_GUESS:
-    active = tile(target[0], "ipucu") + "".join(tile("·", "bos") for _ in range(L - 1))
+    # Lingo kuralı: yeri kesin bilinen harfler sonraki satırda hazır gelir
+    known = [None] * L
+    known[0] = target[0]
+    for guess, states in st.session_state.guesses:
+        for i, s in enumerate(states):
+            if s == "dogru":
+                known[i] = guess[i]
+    active = "".join(tile(k, "ipucu") if k else tile("·", "bos") for k in known)
     rows.append(f'<div class="row">{active}</div>')
 
 while len(rows) < MAX_GUESS:
